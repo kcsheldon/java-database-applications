@@ -1,0 +1,38 @@
+@Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+      throws ServletException, IOException {
+    if (req.getServletPath().equals("/bookmarks")) {
+      Bookmark bookmark = new Bookmark();
+      try {
+        BeanUtils.populate(bookmark, req.getParameterMap());
+      } catch (IllegalAccessException ex) {
+        //do some logging
+      } catch (InvocationTargetException ex) {
+        //do some logging
+      }
+      System.out.println(bookmark);
+      Bookmark bookmarktest = new Bookmark();
+      bookmarktest.setTitle("Test1");
+      bookmarktest.setUrl("book.com");
+      bookmarktest.setDescription("This is a test.");
+
+
+      //++++++++++++++++++++++++++++++
+      EntityManagerFactory emf =
+          Persistence.createEntityManagerFactory("com.launchacademy.javaDatabaseApplications");
+      EntityManager em = emf.createEntityManager();
+      //++++++++++++++++++++++++++++++
+      try {
+        em.getTransaction().begin();
+        em.persist(bookmarktest);
+        em.getTransaction().commit();
+      } catch (Exception exc) {
+        //an error occurred with the INSERT so return false
+        em.getTransaction().rollback();
+      } finally {
+        em.close();
+        emf.close();
+      }
+      resp.sendRedirect("/bookmarks");
+    }
+  }
